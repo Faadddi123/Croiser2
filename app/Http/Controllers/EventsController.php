@@ -4,10 +4,30 @@ namespace App\Http\Controllers;
 use App\Models\Events;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class EventsController extends Controller
 {
+
+
+    public function acceptEvent($eventId)
+    {
+        $event = Events::findOrFail($eventId);
+        $event->update(['Accepted' => 1]);
+    }
+
+    public function denyEvent($eventId)
+    {
+        $event = Events::findOrFail($eventId);
+        $event->update(['Accepted' => 0]);
+    }
+
+
+
+    public function details(){
+        return Inertia::render('Events/Events_Manage');
+    }
     public function showdetails($id){
         $event = Events::findOrFail($id);
 
@@ -63,13 +83,13 @@ class EventsController extends Controller
         $event->name = $request->eventName;
         $event->description = $request->eventDescription;
         $event->localisation = $request->eventLocation;
-        $event->organisateurs_id = auth()->id(); // Assuming you're storing the user ID of the organizer
+        $event->organisateurs_id = auth()->id();
         $event->categories_id = $request->eventCategory;
         $event->available_seats = $request->availableSeats;
         $event->date_depart = $request->eventDepartureDate;
         $event->duree = $request->eventDuration;
         $event->heur_depart = $request->eventDepartureTime;
-        $event->Auto_accept = $request->autoAccept ?? false; // If autoAccept is not provided, default to false
+        $event->Auto_accept = $request->autoAccept ?? false;
         $event->save();
 
         return response()->json(['message' => 'Event created successfully'], 201);
@@ -89,7 +109,12 @@ class EventsController extends Controller
      */
     public function edit(string $id)
     {
-        //
+
+        $event = Events::findOrFail($id);
+
+        return Inertia::render('Events/Affichage', [
+            'event' => $event,
+        ]);
     }
 
     /**
@@ -97,7 +122,42 @@ class EventsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $event = Events::findOrFail($id);
+
+        // $request->validate([
+        //     'eventName' => 'required|string|max:255',
+        //     'eventLocation' => 'required|string|max:255',
+        //     'eventDescription' => 'required|string',
+        //     'eventCategory' => 'required',
+        //     'availableSeats' => 'required|integer|min:1',
+        //     'eventDepartureDate' => 'required|date',
+        //     'eventDuration' => 'required|integer|min:1',
+        //     'eventDepartureTime' => 'required|date_format:H:i',
+        //     'autoAccept' => 'boolean',
+        // ]);
+
+        // Log::info('Request data:', $request->all());
+
+        // if ($errors = $request->errors()) {
+        //     Log::error('Validation failed for the following fields:', $errors->toArray());
+        //     // You can also return a response with the validation errors here if needed
+        // }
+
+
+
+        $event->update([
+            'name' => $request->eventName,
+            'description' => $request->eventDescription,
+            'localisation' => $request->eventLocation,
+            'categories_id' => $request->eventCategory,
+            'available_seats' => $request->availableSeats,
+            'date_depart' => $request->eventDepartureDate,
+            'duree' => $request->eventDuration,
+            'heur_depart' => $request->eventDepartureTime,
+            'Auto_accept' => $request->autoAccept ?? false,
+        ]);
+
+        return response()->json(['message' => 'Event updated successfully', 'event' => $event], 200);
     }
 
     /**

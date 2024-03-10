@@ -10,17 +10,17 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import axios from 'axios';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function EventForm({ auth }) {
+export default function EventForm({ auth , event}) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        eventName: '',
-        eventLocation: '',
-        eventDescription: '',
-        eventCategory: '',
-        availableSeats: '',
-        eventDepartureDate: '',
-        eventDuration: '',
-        eventDepartureTime: '',
-        autoAccept: false,
+        eventName: event ? event.name : '',
+        eventLocation: event ? event.localisation : '',
+        eventDescription: event ? event.description : '',
+        eventCategory: event ? event.categories_id : '', 
+        availableSeats: event ? event.available_seats : '',
+        eventDepartureDate: event ? event.date_depart : '',
+        eventDuration: event ? event.duree : '',
+        eventDepartureTime: event ? event.heur_depart : '',
+        autoAccept: event ? event.auto_accept : false,
     });
 
 
@@ -37,12 +37,35 @@ export default function EventForm({ auth }) {
                 console.error('Error fetching categories:', error);
             });
     }, []);
+
+    const updateEvent = () => {
+        axios.put(`/api/events/${event.id}`, data)
+            .then(response => {
+                // Handle success, if needed
+                console.log('Event updated successfully:', response.data);
+                // Optionally, you can redirect the user after successful update
+                // For example, redirect to event details page
+                // Inertia.visit(route('event.details', { id: event.id }));
+            })
+            .catch(error => {
+                console.error('Error updating event:', error);
+            });
+    };
+
+
     const submit = (e) => {
         e.preventDefault();
-        post(route('events.store'));
+        if (event) {
+            // Call the function to update the event
+            updateEvent();
+        } else {
+            // Call the function to create a new event
+            post(route('events.store'));
+        }
     };
 
     return (
+
         <AuthenticatedLayout
     user={auth.user}
     header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Create a event</h2>}
@@ -176,7 +199,7 @@ export default function EventForm({ auth }) {
                 <div className="mt-4">
                     <InputLabel htmlFor="event Category"  />
 
-                    <SelectOption value={data.selected} onChange={(e) => setData('eventCategory', e.target.value)}>
+                    <SelectOption  value={data.eventCategory || (event ? event.categories_id : false)} onChange={(e) => setData('eventCategory', e.target.value)}>
                         {categories.map(category => (
                              <TheOption key={category.id} children_Value = {category.id} >{category.name}</TheOption>
                          ))}
@@ -194,11 +217,12 @@ export default function EventForm({ auth }) {
                     </Link>
 
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Submit
+                        {event ? 'Edit' : 'Submit'}
                     </PrimaryButton>
                 </div>
             </form>
         </GuestLayout>
         </AuthenticatedLayout>
+
     );
 }

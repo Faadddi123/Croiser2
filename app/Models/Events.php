@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Events extends Model
 {
     use HasFactory;
-
         /**
      * The table associated with the model.
      *
@@ -23,6 +22,7 @@ class Events extends Model
      * @var array
      */
     protected $fillable = [
+        'id',
         'name',
         'description',
         'localisation',
@@ -35,5 +35,5 @@ class Events extends Model
         'Auto_accept',
     ];
 
-    
+
 }

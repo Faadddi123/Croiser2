@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('duree');
             $table->time('heur_depart');
             $table->boolean('Auto_accept');
+            $table->boolean('Accepted')->default(false);
             $table->timestamps();
         });
     }

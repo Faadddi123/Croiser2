@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 
 
@@ -50,6 +52,9 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::post('/events/store', [EventsController::class, 'store'])->name('events.store');
     Route::get('/events/showAll', [EventsController::class, 'showAllEvents'])->name('events.showAll');
     Route::get('/event/details/{id}', [EventsController::class, 'showdetails'])->name('event.details');
+    Route::get('/categories/manage' , [CategoriesController::class, 'details'])->name('categories.manage');
+    Route::get('/events/manage' , [EventsController::class, 'details'])->name('events.manage');
+    Route::get('/events/edit/{id}',[EventsController::class, 'edit'])->name('event.edit');
 });
 
 

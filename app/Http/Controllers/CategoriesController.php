@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Categories;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
 class CategoriesController extends Controller
 {
+    public function details(){
+        return Inertia::render('categories/manage');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -50,9 +55,19 @@ class CategoriesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, categories $category)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        
+        $category->update(['name' => $request->name]);
+
+        // Send the ID of the updated category as JSON response
+        return response()->json(['id' => $category->id]);
+
+
     }
 
     /**
@@ -60,6 +75,9 @@ class CategoriesController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $category = categories::findOrFail($id);
+        $category->delete();
+
+        return response()->json(['message' => 'Category deleted successfully'], 200);
     }
 }

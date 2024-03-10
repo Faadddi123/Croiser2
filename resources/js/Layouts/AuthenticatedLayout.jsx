@@ -25,10 +25,16 @@ export default function Authenticated({ user, header, children }) {
                                     Dashboard
                                 </NavLink>
                                 <NavLink href={route('events.create')} active={route().current('events.create')}>
-                                    Create a Event
+                                    Create Event
                                 </NavLink>
                                 <NavLink href={route('events.showAll')} active={route().current('events.showAll')}>
-                                    Show All events
+                                    My Events
+                                </NavLink>
+                                <NavLink href={route('categories.manage')} active={route().current('categories.manage')}>
+                                    Manage Categories
+                                </NavLink>
+                                <NavLink href={route('events.manage')} active={route().current('events.manage')}>
+                                    Manage Events
                                 </NavLink>
                             </div>
                         </div>
@@ -102,11 +108,17 @@ export default function Authenticated({ user, header, children }) {
                             Dashboard
                         </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('events.create')} active={route().current('events.create')}>
-                            Create a Event
+                            Create Event
                         </ResponsiveNavLink>
-                        {/* <ResponsiveNavLink href={route('events.showAll')} active={route().current('events.showAll')}>
-                            Show All events
-                        </ResponsiveNavLink> */}
+                        <ResponsiveNavLink href={route('events.showAll')} active={route().current('events.showAll')}>
+                            My Events
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('categories.manage')} active={route().current('categories.manage')}>
+                            Manage
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('events.manage')} active={route().current('events.manage')}>
+                            Manage Events
+                        </ResponsiveNavLink>
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">
