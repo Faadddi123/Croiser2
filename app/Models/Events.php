@@ -33,6 +33,7 @@ class Events extends Model
         'duree',
         'heur_depart',
         'Auto_accept',
+        'Accepted',
     ];
 
 

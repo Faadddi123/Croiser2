@@ -12,7 +12,7 @@ class Reservations extends Model
     use HasFactory;
 
     protected $table = 'reservations';
-    protected $fillable = ['users_id', 'Events_id'];
+    protected $fillable = ['users_id', 'Events_id' , 'generate_ticket'];
 
 
     /**

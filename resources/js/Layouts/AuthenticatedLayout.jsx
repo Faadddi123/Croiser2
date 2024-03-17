@@ -1,13 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
+import axios from 'axios';
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [userRole, setUserRole] = useState('Guest');
 
+    useEffect(() => {
+        getUserRole(user.id);
+        console.log(userRole);
+    }, []);
+
+    const getUserRole = async (userId) => {
+        try {
+            const response = await axios.get(`/api/user-role/${userId}`);
+            if (response.data && response.data.role && response.data.role.length > 0) {
+                const roleName = response.data.role[0];
+                console.log(roleName);
+                setUserRole(roleName);
+            } else {
+                setUserRole('Guest');
+            }
+        } catch (error) {
+            console.error('Error fetching user role:', error);
+            setUserRole('Guest'); 
+        }
+    };
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="bg-white border-b border-gray-100">
@@ -24,25 +46,43 @@ export default function Authenticated({ user, header, children }) {
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Dashboard
                                 </NavLink>
-                                <NavLink href={route('events.create')} active={route().current('events.create')}>
-                                    Create Event
-                                </NavLink>
+                                {userRole === 'Organisateur' && (
+                                    <>
+
+                                    <NavLink href={route('events.create')} active={route().current('events.create')}>
+                                        Create Event
+                                    </NavLink>
+                                    <NavLink href={route('reservation.manage')} active={route().current('reservation.manage')}>
+                                        Manage Reservation
+                                    </NavLink>
+
+                                    </>
+
+                                )}
+                                {userRole === 'Administrateur' && (
+                                        <>
+                                            <NavLink href={route('events.manage')} active={route().current('events.manage')}>
+                                                Manage Events
+                                            </NavLink>
+                                            <NavLink href={route('categories.manage')} active={route().current('categories.manage')}>
+                                                Manage Categories
+                                            </NavLink>
+                                        </>
+                                    )}
+
+
                                 <NavLink href={route('events.showAll')} active={route().current('events.showAll')}>
                                     My Events
                                 </NavLink>
-                                <NavLink href={route('categories.manage')} active={route().current('categories.manage')}>
-                                    Manage Categories
-                                </NavLink>
-                                <NavLink href={route('events.manage')} active={route().current('events.manage')}>
-                                    Manage Events
-                                </NavLink>
+
+
                             </div>
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
                             <div className="ms-3 relative">
                                 <Dropdown>
-                                    <Dropdown.Trigger>
+                                       <Dropdown.Trigger>
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
@@ -107,18 +147,30 @@ export default function Authenticated({ user, header, children }) {
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('events.create')} active={route().current('events.create')}>
-                            Create Event
-                        </ResponsiveNavLink>
+                        {userRole === 'Organisateur' && (
+                            <>
+                            <ResponsiveNavLink href={route('events.create')} active={route().current('events.create')}>
+                                Create Event
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('reservation.manage')} active={route().current('reservation.manage')}>
+                                Manage Reservation
+                            </ResponsiveNavLink>
+                            </>
+                        )}
+                        {userRole === 'Administrateur' && (
+                            <>
+                                <ResponsiveNavLink href={route('categories.manage')} active={route().current('categories.manage')}>
+                                    Manage Categories
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('events.manage')} active={route().current('events.manage')}>
+                                    Manage Events
+                                </ResponsiveNavLink>
+                            </>
+                        )}
                         <ResponsiveNavLink href={route('events.showAll')} active={route().current('events.showAll')}>
                             My Events
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('categories.manage')} active={route().current('categories.manage')}>
-                            Manage
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('events.manage')} active={route().current('events.manage')}>
-                            Manage Events
-                        </ResponsiveNavLink>
+
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">

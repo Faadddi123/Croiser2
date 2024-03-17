@@ -1,42 +1,94 @@
-import React from 'react';
-import { Button, Card, CardBody, CardHeader, Container, DataTable, TableBody, TableContainer, TableColumn, TableRow } from '@windmill/react-ui';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
-const SampleForm = () => {
+const EventList = ( {auth} ) => {
+  const [events, setEvents] = useState([]);
+  const [editedEventName, setEditedEventName] = useState('');
+  const [editingEventId, setEditingEventId] = useState(null);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get('/api/events');
+      setEvents(response.data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    }
+  };
+
+  const handleDelete = async (eventId) => {
+    try {
+      await axios.delete(`/api/events/${eventId}`);
+      fetchEvents();
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+  };
+
+  const handleAccept = async (eventId) => {
+    try {
+      await axios.put(`/api/events/${eventId}/accept`);
+      console.log('Accepted event with ID:', eventId);
+      fetchEvents(); // Fetch events again to update the list
+    } catch (error) {
+      console.error('Error accepting event:', error);
+    }
+  };
+
+  const handleDeny = async (eventId) => {
+    try {
+      await axios.put(`/api/events/${eventId}/deny`);
+      console.log('Denied event with ID:', eventId);
+      fetchEvents(); // Fetch events again to update the list
+    } catch (error) {
+      console.error('Error denying event:', error);
+    }
+  };
+
   return (
-    <Container>
-      <Card>
-        <CardHeader>
-          <h2 className="text-xl font-semibold">Sample Form</h2>
-        </CardHeader>
-        <CardBody>
-          <form>
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-              <input type="text" id="name" name="name" className="mt-1 p-2 border border-gray-300 rounded-md w-full" />
+    <AuthenticatedLayout
+    user={auth.user}
+    header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Create a event</h2>}
+>
+    <div className="container mx-auto mt-8">
+      <h1 className="text-2xl font-semibold mb-4">Events List</h1>
+      <ul>
+        {events.map((event) => (
+          <li key={event.id} className="flex items-center justify-between py-2 border-b">
+            <span>{event.name}</span>
+            <div>
+            {event.Accepted ? (
+                <button
+                    onClick={() => handleDeny(event.id)}
+                  className="px-3 py-1 bg-red-500 text-white rounded mr-2"
+                >
+                  Deny
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleAccept(event.id)}
+                  className="px-3 py-1 bg-green-500 text-white rounded mr-2"
+                >
+                  Accept
+                </button>
+              )}
+              <button
+                onClick={() => handleDelete(event.id)}
+                className="px-3 py-1 bg-red-500 text-white rounded"
+              >
+                Delete
+              </button>
             </div>
-            <div className="mb-4">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-              <textarea id="description" name="description" rows="3" className="mt-1 p-2 border border-gray-300 rounded-md w-full"></textarea>
-            </div>
-            <div className="mb-4">
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
-              <input type="text" id="location" name="location" className="mt-1 p-2 border border-gray-300 rounded-md w-full" />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700">Date</label>
-              <input type="date" id="date" name="date" className="mt-1 p-2 border border-gray-300 rounded-md w-full" />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="duration" className="block text-sm font-medium text-gray-700">Duration</label>
-              <input type="text" id="duration" name="duration" className="mt-1 p-2 border border-gray-300 rounded-md w-full" />
-            </div>
-            <Button type="submit" className="mr-2" size="small">Submit</Button>
-            <Button type="button" size="small">Cancel</Button>
-          </form>
-        </CardBody>
-      </Card>
-    </Container>
+          </li>
+        ))}
+      </ul>
+    </div>
+    </AuthenticatedLayout>
   );
 };
 
-export default SampleForm;
+export default EventList;

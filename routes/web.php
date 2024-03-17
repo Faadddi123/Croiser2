@@ -4,10 +4,12 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReservationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 
 
@@ -55,6 +57,7 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::get('/categories/manage' , [CategoriesController::class, 'details'])->name('categories.manage');
     Route::get('/events/manage' , [EventsController::class, 'details'])->name('events.manage');
     Route::get('/events/edit/{id}',[EventsController::class, 'edit'])->name('event.edit');
+    Route::get('/reservation/manage' , [ReservationController::class, 'manage'])->name('reservation.manage');
 });
 
 

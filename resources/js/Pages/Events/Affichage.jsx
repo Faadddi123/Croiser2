@@ -15,7 +15,7 @@ export default function EventForm({ auth , event}) {
         eventName: event ? event.name : '',
         eventLocation: event ? event.localisation : '',
         eventDescription: event ? event.description : '',
-        eventCategory: event ? event.categories_id : '', 
+        eventCategory: event ? event.categories_id : '',
         availableSeats: event ? event.available_seats : '',
         eventDepartureDate: event ? event.date_depart : '',
         eventDuration: event ? event.duree : '',
@@ -158,7 +158,7 @@ export default function EventForm({ auth , event}) {
 
                     <TextInput
                         id="eventDuration"
-                        type="number"
+                            type="number"
                         name="eventDuration"
                         value={data.eventDuration}
                         className="mt-1 block w-full"

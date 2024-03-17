@@ -27,11 +27,12 @@ class EventsController extends Controller
 
     public function details(){
         return Inertia::render('Events/Events_Manage');
+        // return Inertia::render('Front/Events_Manage');
     }
     public function showdetails($id){
         $event = Events::findOrFail($id);
 
-        return Inertia::render('Events/Specific_info', [
+        return Inertia::render('Front/App', [
             'event' => $event,
         ]);
     }
@@ -47,12 +48,14 @@ class EventsController extends Controller
     public function index()
     {
         $events = Events::all();
-
+        
         return response()->json($events);
 
     }
 
+    public function reservation_specifique(){
 
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -73,7 +76,7 @@ class EventsController extends Controller
             'eventDescription' => 'required|string',
             'eventCategory' => 'required',
             'availableSeats' => 'required|integer|min:1',
-            'eventDepartureDate' => 'required|date',
+            'eventDepartureDate' => 'required|after:today',
             'eventDuration' => 'required|integer|min:1',
             'eventDepartureTime' => 'required|date_format:H:i',
             'autoAccept' => 'boolean',
@@ -163,8 +166,14 @@ class EventsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $event = Events::findOrFail($id);
+        try {
+            $event->delete();
+            return response()->json(['message' => 'Event deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete event', 'error' => $e->getMessage()], 500);
+        }
     }
 }

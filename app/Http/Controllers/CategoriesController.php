@@ -16,6 +16,7 @@ class CategoriesController extends Controller
      */
     public function index()
     {
+
         $Categories = categories::all();
         return response()->json($Categories);
     }
@@ -33,7 +34,22 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        try {
+            // Create a new category instance
+            $category = new categories();
+            $category->name = $validatedData['name'];
+            $category->save();
+
+            // Return a success response
+            return response()->json(['message' => 'Category created successfully', 'category' => $category], 201);
+        } catch (\Exception $e) {
+            // Return an error response if something went wrong
+            return response()->json(['message' => 'Failed to create category', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -61,7 +77,7 @@ class CategoriesController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        
+
         $category->update(['name' => $request->name]);
 
         // Send the ID of the updated category as JSON response

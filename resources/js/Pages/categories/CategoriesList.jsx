@@ -5,6 +5,7 @@ const CategoriesList = () => {
   const [categories, setCategories] = useState([]);
   const [editedCategoryName, setEditedCategoryName] = useState('');
   const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -41,7 +42,7 @@ const CategoriesList = () => {
   const handleSubmit = async () => {
     try {
       const response = await axios.put(`/api/categories/${editingCategoryId}`, { name: editedCategoryName });
-      console.log('Response:', response); 
+      console.log('Response:', response);
       setEditingCategoryId(null);
       fetchCategories();
     } catch (error) {
@@ -49,9 +50,35 @@ const CategoriesList = () => {
     }
   };
 
+  const handleCreateCategory = async () => {
+    try {
+      const response = await axios.post('/api/categories', { name: newCategoryName });
+      console.log('New category created:', response.data);
+      setNewCategoryName('');
+      fetchCategories();
+    } catch (error) {
+      console.error('Error creating category:', error);
+    }
+  };
+
   return (
     <div className="container mx-auto mt-8">
       <h1 className="text-2xl font-semibold mb-4">Categories List</h1>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Enter new category name"
+          value={newCategoryName}
+          onChange={(e) => setNewCategoryName(e.target.value)}
+          className="border border-gray-300 rounded-md px-4 py-2 mr-2"
+        />
+        <button
+          onClick={handleCreateCategory}
+          className="px-3 py-2 bg-blue-500 text-white rounded-md"
+        >
+          Create
+        </button>
+      </div>
       <ul>
         {categories.map((category) => (
           <li key={category.id} className="flex items-center justify-between py-2 border-b">

@@ -4,16 +4,20 @@ namespace App\Http\Controllers;
 
 //
 use App\Mail\TicketEmail;
-use Illuminate\Support\Facades\Mail;
-//for email sending
 use App\Models\Events;
+//for email sending
 use App\Models\Reservations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Inertia\Inertia;
 
 class ReservationController extends Controller
 {
 
+    public function manage(){
+        return Inertia::render('reservation/manage_reservation');
+    }
     public function sendticket($reservationId)
     {
         // Retrieve the reservation details
@@ -30,15 +34,16 @@ class ReservationController extends Controller
 
         // Retrieve the associated user details
         $user = $reservation->user;
+        $message = 'Your custom message here';
 
         // Send email with ticket information
         try {
             // Create an instance of TicketEmail and pass the required parameters
-            $ticketEmail = new TicketEmail($event, $user, $reservation, 'Your custom message here');
+            $ticketEmail = new TicketEmail($event, $user, $reservation,$message);
 
             // Send the email
             Mail::to($user->email)->send($ticketEmail);
-
+            return $ticketEmail;
             return response()->json(['message' => 'Ticket sent successfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to send ticket', 'error' => $e->getMessage()], 500);
@@ -87,8 +92,8 @@ class ReservationController extends Controller
             $event->available_seats -= 1;
             $event->save();
             if($reservation->generate_ticket){
-                $this->sendticket($reservation->id);
-                return response()->json(['message' => 'Reservation created with email successfully'], 200);
+                $ticketEmail = $this->sendticket($reservation->id);
+                return response()->json(['message' => 'Reservation created with email successfully' , 'ticket' => $ticketEmail], 200);
             }
 
             return response()->json(['message' => 'Reservation created successfully', 'reservation' => $reservation], 200);
@@ -102,7 +107,7 @@ class ReservationController extends Controller
      */
     public function index()
     {
-        //
+
     }
 
     /**
@@ -126,7 +131,18 @@ class ReservationController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $reservations = Reservations::join('Events', 'reservations.Events_id', '=', 'Events.id')
+            ->join('users' , 'users.id' , '=' , 'reservations.users_id')
+            ->where('Events.organisateurs_id', '=', $id)
+            ->select('users.name as username' , 'reservations.generate_ticket' , 'reservations.id')
+            ->get();
+
+
+        if ($reservations->isEmpty()) {
+            return response()->json(['message' => 'Reservations not found'], 404);
+        }
+
+        return response()->json(['reservations' => $reservations], 200);
     }
 
     /**
@@ -140,16 +156,40 @@ class ReservationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update( $id)
     {
-        //
+        // dd('ee');
+        // return response()->json(['message' => 'Reservation not found' , 'id' => $id], 200);
+        $reservation = Reservations::findOrfail($id);
+
+        // Check if the reservation exists
+        if (!$reservation) {
+            return response()->json(['message' => 'Reservation not found'], 404);
+        }
+
+        // Update the reservation with the request data
+        $reservation->update(['generate_ticket' => 1]);
+
+        // Return the response with a success message
+        return response()->json(['message' => 'Reservation updated successfully', 'reservation' => $reservation], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $reservation = Reservations::find($id);
+
+        // Check if the reservation exists
+        if (!$reservation) {
+            return response()->json(['message' => 'Reservation not found'], 404);
+        }
+
+        // Delete the reservation
+        $reservation->delete();
+
+        return response()->json(['message' => 'Reservation deleted successfully'], 200);
     }
 }
